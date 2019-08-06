@@ -167,7 +167,7 @@ int Evaluator_Load(Evaluator *self, const char *in_file_name)
 	FILE *fp;
 	int i;
 
-	fp = fopen(in_file_name, "rb");
+	fopen_s(&fp, in_file_name, "rb");
 	if (!fp) {
 		return 0;
 	}
@@ -186,7 +186,7 @@ int Evaluator_Save(const Evaluator *self, const char *in_file_name)
 	FILE *fp;
 	int i;
 
-	fp = fopen(in_file_name, "wb");
+	fopen_s(&fp, in_file_name, "wb");
 	if (!fp) {
 		return 0;
 	}

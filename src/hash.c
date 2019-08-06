@@ -4,7 +4,7 @@
 
 struct _HashData
 {
-	HashKey Key;
+	RevHashKey Key;
 	HashInfo Info;
 };
 typedef struct _HashData HashData;
@@ -72,17 +72,17 @@ void Hash_Clear(Hash *self)
 	self->HitNum = 0;
 }
 
-int Hash_Set(Hash *self, const HashKey *in_key, const HashInfo *in_info)
+int Hash_Set(Hash *self, const RevHashKey *in_key, const HashInfo *in_info)
 {
 	int i;
 
 	i = in_key->Low & self->Mask;
-	memcpy(&self->Data[i].Key, in_key, sizeof(HashKey));
+	memcpy(&self->Data[i].Key, in_key, sizeof(RevHashKey));
 	memcpy(&self->Data[i].Info, in_info, sizeof(HashInfo));
 	return 1;
 }
 
-int Hash_Get(Hash *self, const HashKey *in_key, HashInfo *out_info)
+int Hash_Get(Hash *self, const RevHashKey *in_key, HashInfo *out_info)
 {
 	int i;
 

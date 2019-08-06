@@ -2,4 +2,6 @@ data
 temp
 windows/Debug
 windows/Release
+windows_gui/Debug
+windows_gui/Release
 .vs

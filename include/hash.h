@@ -6,7 +6,7 @@ struct _HashKey
 	unsigned long Low;
 	unsigned long High;
 };
-typedef struct _HashKey HashKey;
+typedef struct _HashKey RevHashKey;
 
 struct _HashInfo
 {
@@ -25,8 +25,8 @@ extern "C" {
 Hash	*Hash_New(int in_size);
 void	Hash_Delete(Hash *self);
 void	Hash_Clear(Hash *self);
-int		Hash_Set(Hash *self, const HashKey *in_key, const HashInfo *in_info);
-int		Hash_Get(Hash *self, const HashKey *in_key, HashInfo *out_info);
+int		Hash_Set(Hash *self, const RevHashKey *in_key, const HashInfo *in_info);
+int		Hash_Get(Hash *self, const RevHashKey *in_key, HashInfo *out_info);
 void	Hash_ClearInfo(Hash *self);
 int		Hash_CountGet(Hash *self);
 int		Hash_CountHit(Hash *self);

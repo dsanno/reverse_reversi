@@ -26,7 +26,7 @@ struct _Board
 	int Pattern[NUM_PATTERN_ID];
 	int PatternID[NUM_DISK][NUM_PATTERN_DIFF];
 	int PatternDiff[NUM_DISK][NUM_PATTERN_DIFF];
-	HashKey HashDiff[NUM_HASH_PATTERN][NUM_HASH_DIFF];
+	RevHashKey HashDiff[NUM_HASH_PATTERN][NUM_HASH_DIFF];
 };
 
 #define OPPONENT_COLOR(c)			(BLACK + WHITE - c)
@@ -703,11 +703,10 @@ int Board_UnflipPattern(Board *self)
 	return result;
 }
 
-void Board_HashKey(Board *self, HashKey *out_key)
+void Board_HashKey(Board *self, RevHashKey *out_key)
 {
-#if 1
 	int i;
-	HashKey *key;
+	RevHashKey *key;
 	int pattern_id[NUM_HASH_PATTERN] = {
 		PATTERN_ID_LINE4_1, PATTERN_ID_LINE4_2,
 		PATTERN_ID_LINE3_1, PATTERN_ID_LINE3_2, PATTERN_ID_LINE2_1, PATTERN_ID_LINE2_2,
@@ -719,9 +718,6 @@ void Board_HashKey(Board *self, HashKey *out_key)
 		out_key->Low ^= key->Low;
 		out_key->High ^= key->High;
 	}
-#else
-	memcpy(out_key, &self->Key, sizeof(HashKey));
-#endif
 }
 
 static int Board_CountFlipsLine(const Board *self, int in_color, int in_pos, int in_dir)

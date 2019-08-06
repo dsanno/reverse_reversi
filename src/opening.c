@@ -122,7 +122,7 @@ int Opening_Load(Opening *self, const char *in_file_name)
 {
 	FILE *fp;
 
-	fp = fopen(in_file_name, "rb");
+	fopen_s(&fp, in_file_name, "rb");
 	if (!fp) {
 		return 0;
 	}
@@ -138,7 +138,7 @@ int Opening_Save(const Opening *self, const char *in_file_name)
 {
 	FILE *fp;
 
-	fp = fopen(in_file_name, "wb");
+	fopen_s(&fp, in_file_name, "wb");
 	if (!fp) {
 		return 0;
 	}

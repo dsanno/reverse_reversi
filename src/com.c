@@ -219,7 +219,7 @@ static int Com_MidSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 	MoveInfo info[BOARD_SIZE * BOARD_SIZE / 2];
 	int i, info_num;
 	MPCInfo *mpc_info;
-	HashKey hash_key;
+	RevHashKey hash_key;
 	HashInfo hash_info;
 
 	if (in_depth == 0) {
@@ -420,7 +420,7 @@ static int Com_EndSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 	int move;
 	MoveInfo info[BOARD_SIZE * BOARD_SIZE / 2];
 	int i, info_num;
-	HashKey hash_key;
+	RevHashKey hash_key;
 	HashInfo hash_info;
 
 	if (in_depth == 1) {
@@ -613,40 +613,11 @@ static int Com_Sort(Com *self, int in_color, MoveInfo *out_info)
 	MoveList *p;
 	MoveInfo info_tmp, *best_info;
 	int i, j;
-	HashKey hash_key;
-	HashInfo hash_info;
+	RevHashKey hash_key;
 
-#if 0
-	for (p = self->Moves->Next; p; p = p->Next) {
-		if (Board_Flip(self->Board, in_color, p->Pos)) {
-			MoveList *q;
-			out_info[info_num].Move = p;
-			out_info[info_num].Value = 0;
-			for (q = self->Moves->Next; q; q = q->Next) {
-				if (p == q) {
-					continue;
-				}
-				if (Board_Flip(self->Board, Board_OpponentColor(in_color), q->Pos)) {
-					out_info[info_num].Value-=100;
-					Board_Unflip(self->Board);
-				}
-				if (Board_Flip(self->Board, in_color, q->Pos)) {
-//					out_info[info_num].Value+=100;
-					Board_Unflip(self->Board);
-				}
-			}
-			info_num++;
-			Board_Unflip(self->Board);
-		}
-	}
-#else
 	for (p = self->Moves->Next; p; p = p->Next) {
 		if (Board_FlipPattern(self->Board, in_color, p->Pos)) {
 			Board_HashKey(self->Board, &hash_key);
-#if 0
-			if (Hash_Get(self->Hash, &hash_key, &hash_info)) {
-			}
-#endif
 			out_info[info_num].Move = p;
 			out_info[info_num].Value = Evaluator_Value(self->Evaluator, self->Board);
 			info_num++;
@@ -658,7 +629,6 @@ static int Com_Sort(Com *self, int in_color, MoveInfo *out_info)
 			out_info[i].Value = -out_info[i].Value;
 		}
 	}
-#endif
 	for (i = 0; i < info_num; i++) {
 		best_info = &out_info[i];
 		for (j = i + 1; j < info_num; j++) {
@@ -677,7 +647,7 @@ int Com_LoadMPCInfo(Com *self, const char *in_file_name)
 {
 	FILE *fp;
 
-	fp = fopen(in_file_name, "rb");
+	fopen_s(&fp, in_file_name, "rb");
 	if (!fp) {
 		return 0;
 	}

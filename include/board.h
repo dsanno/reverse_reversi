@@ -132,7 +132,7 @@
 #define NUM_PATTERN_ID			42
 
 typedef struct _Board Board;
-typedef struct _HashKey HashKey;
+typedef struct _HashKey RevHashKey;
 
 #ifdef __cplusplus
 extern "C" {
@@ -155,7 +155,7 @@ int		Board_Pattern(const Board *self, int in_id);
 int		Board_FlipPattern(Board *self, int in_color, int in_pos);
 int		Board_UnflipPattern(Board *self);
 
-void	Board_HashKey(Board *self, HashKey *out_key);
+void	Board_HashKey(Board *self, RevHashKey *out_key);
 
 void	Board_Copy(const Board *self, Board *out_board);
 void	Board_Reverse(Board *self);

@@ -134,7 +134,7 @@ static void play(Board *board, Com *com)
 			Com_SetLevel(com, 6, 12, 14);
 			break;
 		} else if (!strcmp(buffer, "4")) {
-			Com_SetLevel(com, 12, 16, 18);
+			Com_SetLevel(com, 8, 14, 16);
 			break;
 		}
 	}
@@ -308,7 +308,7 @@ static void opening_initialize(Board *board, Opening *opening)
 	int history_move[BOARD_SIZE * BOARD_SIZE * 2];
 	int i;
 
-	fp = fopen(OPENING_TRANSCRIPT_FILE, "r");
+	fopen_s(&fp, OPENING_TRANSCRIPT_FILE, "r");
 	if (!fp) {
 		return;
 	}
@@ -384,7 +384,7 @@ static int save_mpc(int in_num, const MPCInfo *in_info)
 {
 	FILE *fp;
 
-	fp = fopen(MPC_FILE, "wb");
+	fopen_s(&fp, MPC_FILE, "wb");
 	if (!fp) {
 		return 0;
 	}
