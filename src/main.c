@@ -10,11 +10,11 @@
 
 #define BUFFER_SIZE 64
 #define MPC_NUM 14
-#define MPC_FILE "mpc.dat"
-#define MPC_LEARN_FILE "mpc_learn.dat"
-#define EVALUATOR_FILE "eval.dat"
-#define OPENING_TRANSCRIPT_FILE "open_trans.txt"
-#define OPENING_FILE "open.dat"
+#define MPC_FILE "data/mpc.dat"
+#define MPC_LEARN_FILE "data/mpc_learn.dat"
+#define EVALUATOR_FILE "data/eval.dat"
+#define OPENING_TRANSCRIPT_FILE "data/open_trans.txt"
+#define OPENING_FILE "data/open.dat"
 #define TRANSCRIPT_SIZE 128
 struct _MainParam
 {
@@ -138,7 +138,7 @@ static void play(Board *board, Com *com)
 			break;
 		}
 	}
-	Com_SetOpening(com, 0);
+	Com_SetOpening(com, 1);
 	Com_LoadMPCInfo(com, MPC_FILE);
 	while (1) {
 		print_board(board);
@@ -151,9 +151,9 @@ static void play(Board *board, Com *com)
 				score = Board_CountDisks(board, player_color) - Board_CountDisks(board, Board_OpponentColor(player_color));
 			}
 			if (score > 0) {
-				printf("あなたの%d石勝ちです\n", score);
+				printf("コンピュータの%d石負けです\n", score);
 			} else if (score < 0) {
-				printf("コンピュータの%d石勝ちです\n", -score);
+				printf("あなたの%d石負けです\n", -score);
 			} else {
 				printf("引き分けです\n");
 			}
@@ -234,27 +234,20 @@ static void learn(Board *board, Evaluator *evaluator, Com *com)
 	int i, j, move, num, turn, value;
 	int color;
 	int result;
-#if 1
-	int n, m = 0, h_get, h_hit;
-	double d = 0.0;
-	const int exact_depth = 16;
-#endif
+	const int middle_depth = 6;
+	const int exact_depth = 14;
 
 	printf("対戦回数を入力してください\n");
 	get_stream(buffer, BUFFER_SIZE, stdin);
 	num = atoi(buffer);
 
-	Com_SetLevel(com, 6, exact_depth, exact_depth);
+	Com_SetLevel(com, middle_depth, exact_depth, exact_depth);
 	Com_SetOpening(com, 0);
 	Com_LoadMPCInfo(com, MPC_LEARN_FILE);
 	for (i = 0; i < num; i++) {
 		Board_Clear(board);
 		color = BLACK;
 		turn = 0;
-#if 1
-		n = 0;
-		h_get = h_hit = 0;
-#endif
 		for (j = 0; j < 8; j++) {
 			if (Board_CanPlay(board, color)) {
 				move_random(board, color);
@@ -269,13 +262,6 @@ static void learn(Board *board, Evaluator *evaluator, Com *com)
 					move_random(board, color);
 				} else {
 					move = Com_NextMove(com, board, color, &value);
-#if 1
-					if (Board_CountDisks(board, EMPTY) == exact_depth) {
-						n += Com_CountNodes(com);
-						h_get += Com_CountHashGet(com);
-						h_hit += Com_CountHashHit(com);
-					}
-#endif
 					Board_Flip(board, color, move);
 				}
 				history_color[turn] = color;
@@ -301,21 +287,15 @@ static void learn(Board *board, Evaluator *evaluator, Com *com)
 				Board_Reverse(board);
 			}
 		}
-#if 1
-		m = (int)(((double)n + (double)i * m)/(i+1));
-		d = ((double)n * n + d * i)/(i+1);
-		printf("学習中... %d / %d %d +- %d %d %.2f          \r", i + 1 , num, m, (int)(sqrt((d - (double)m * m) / (i + 1))), n, (double)h_hit / h_get);
-#else
 		if ((i + 1) % 10 == 0) {
 			Evaluator_Update(evaluator);
 		}
 		if ((i + 1) % 100 == 0) {
 			printf("学習中... %d / %d\r", i + 1 , num );
-//			Evaluator_Save(evaluator, EVALUATOR_FILE);
+			Evaluator_Save(evaluator, EVALUATOR_FILE);
 		}
-#endif
 	}
-//	Evaluator_Save(evaluator, EVALUATOR_FILE);
+	Evaluator_Save(evaluator, EVALUATOR_FILE);
 	printf("終了しました                    \n");
 }
 
@@ -540,8 +520,7 @@ int main(int argc, char **argv)
 	MainParam param;
 	char buffer[BUFFER_SIZE];
 
-	srand(0);
-//	srand((unsigned)time(NULL));
+	srand((unsigned)time(NULL));
 	if (!main_param_initialize(&param)) {
 		printf("初期化に失敗しました\n");
 		return 0;

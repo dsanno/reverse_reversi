@@ -138,38 +138,8 @@ int Com_NextMove(Com *self, const Board *in_board, int in_color, int *out_value)
 	value = Com_OpeningSearch(self, in_color, Board_OpponentColor(in_color), &result);
 	if (result != NOMOVE) {
 	} else if (left <= self->ExactDepth) {
-#if 0
-		if (left >= self->ExactDepth - 1) {
-#if 1
-			value = DISK_VALUE * Com_EndSearch(self, left, -BOARD_SIZE * BOARD_SIZE, BOARD_SIZE * BOARD_SIZE, in_color, Board_OpponentColor(in_color), 0, &result);
-			self->Node = 0;
-//			Hash_Clear(self->Hash);
-#else
-			value = Com_MidSearch(self, self->MidDepth - 2, -MAX_VALUE, MAX_VALUE, in_color, Board_OpponentColor(in_color), 0, &result);
-			self->Node = 0;
-#endif
-			window = 2;
-			lower = -BOARD_SIZE * BOARD_SIZE;
-			upper = BOARD_SIZE * BOARD_SIZE;
-			current = value / DISK_VALUE - window / 2;
-			while (upper > lower) {
-				value = Com_EndSearch(self, left, current, current + window, in_color, Board_OpponentColor(in_color), 0, &result);
-				if (value > current && value < current + window) {
-					upper = lower = value;
-				} else if (value <= current) {
-					upper = current = value - window;
-				} else {
-					lower = current = value;
-				}
-			}
-		} else {
-			value = Com_EndSearch(self, left, -BOARD_SIZE * BOARD_SIZE, BOARD_SIZE * BOARD_SIZE, in_color, Board_OpponentColor(in_color), 0, &result);
-		}
-		value *= DISK_VALUE;
-#else
 		value = Com_EndSearch(self, left, -BOARD_SIZE * BOARD_SIZE, BOARD_SIZE * BOARD_SIZE, in_color, Board_OpponentColor(in_color), 0, &result);
 		value *= DISK_VALUE;
-#endif
 	} else if (left <= self->WLDDepth) {
 		value = Com_EndSearch(self, left, -BOARD_SIZE * BOARD_SIZE, 1, in_color, Board_OpponentColor(in_color), 0, &result);
 		value *= DISK_VALUE;
@@ -359,7 +329,7 @@ static int Com_MidSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 		if (in_pass) {
 			*out_move = NOMOVE;
 			self->Node++;
-			max = DISK_VALUE * (Board_CountDisks(self->Board, in_color) - Board_CountDisks(self->Board, in_opponent));
+			max = DISK_VALUE * (Board_CountDisks(self->Board, in_opponent) - Board_CountDisks(self->Board, in_color));
 		} else {
 			*out_move = PASS;
 			max = -Com_MidSearch(self, in_depth - 1, -in_beta, -max, in_opponent, in_color, 1, &move);
@@ -457,15 +427,15 @@ static int Com_EndSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 		self->Node++;
 		p = self->Moves->Next;
 		value = Board_CountFlips(self->Board, in_color, p->Pos);
-		max = Board_CountDisks(self->Board, in_color) - Board_CountDisks(self->Board, in_opponent);
+		max = Board_CountDisks(self->Board, in_opponent) - Board_CountDisks(self->Board, in_color);
 		if (value > 0) {
 			*out_move = p->Pos;
-			return max + value + value + 1;
+			return max - value - value - 1;
 		}
 		value = Board_CountFlips(self->Board, in_opponent, self->Moves->Next->Pos);
 		if (value > 0) {
 			*out_move = PASS;
-			return max - value - value - 1;
+			return max + value + value + 1;
 		}
 		*out_move = NOMOVE;
 		return max;
@@ -501,12 +471,7 @@ static int Com_EndSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 			hash_info.Lower = -MAX_VALUE;
 			hash_info.Upper = MAX_VALUE;
 		}
-#if 0
-//		info_num = Com_PnSort(self, in_color, in_depth <= 10?3:5, info);
-		info_num = Com_PnSort(self, in_color, 1, info);
-#else
 		info_num = Com_Sort(self, in_color, info);
-#endif
 		if (info_num > 0) {
 			*out_move = info[0].Move->Pos;
 			can_move = 1;
@@ -565,7 +530,7 @@ static int Com_EndSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 		if (in_pass) {
 			*out_move = NOMOVE;
 			self->Node++;
-			max = Board_CountDisks(self->Board, in_color) - Board_CountDisks(self->Board, in_opponent);
+			max = Board_CountDisks(self->Board, in_opponent) - Board_CountDisks(self->Board, in_color);
 		} else {
 			*out_move = PASS;
 			max = -Com_EndSearch(self, in_depth, -in_beta, -max, in_opponent, in_color, 1, &move);
