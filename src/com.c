@@ -250,11 +250,13 @@ static int Com_MidSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 				hash_info.Depth = in_depth;
 				hash_info.Lower = -MAX_VALUE;
 				hash_info.Upper = MAX_VALUE;
+				hash_info.Move = NOMOVE;
 			}
 		} else {
 			hash_info.Depth = in_depth;
 			hash_info.Lower = -MAX_VALUE;
 			hash_info.Upper = MAX_VALUE;
+			hash_info.Move = NOMOVE;
 		}
 	}
 	if (in_depth >= MPC_DEPTH_MIN && in_depth < MPC_DEPTH_MIN + self->MPCInfoNum) {
@@ -301,7 +303,9 @@ static int Com_MidSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 		}
 		if (*out_move != PASS) {
 			hash_info.Upper = max;
-			hash_info.Move = *out_move;
+			if (hash_info.Move == NOMOVE) {
+				hash_info.Move = *out_move;
+			}
 			Hash_Set(self->Hash, &hash_key, &hash_info);
 		}
 	} else {
@@ -465,11 +469,13 @@ static int Com_EndSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 				hash_info.Depth = in_depth;
 				hash_info.Lower = -MAX_VALUE;
 				hash_info.Upper = MAX_VALUE;
+				hash_info.Move = NOMOVE;
 			}
 		} else {
 			hash_info.Depth = in_depth;
 			hash_info.Lower = -MAX_VALUE;
 			hash_info.Upper = MAX_VALUE;
+			hash_info.Move = NOMOVE;
 		}
 		info_num = Com_Sort(self, in_color, info);
 		if (info_num > 0) {
@@ -502,7 +508,9 @@ static int Com_EndSearch(Com *self, int in_depth, int in_alpha, int in_beta, int
 		}
 		if (*out_move != PASS && *out_move != NOMOVE) {
 			hash_info.Upper = max;
-			hash_info.Move = *out_move;
+			if (hash_info.Move == NOMOVE) {
+				hash_info.Move = *out_move;
+			}
 			Hash_Set(self->Hash, &hash_key, &hash_info);
 		}
 	} else {
